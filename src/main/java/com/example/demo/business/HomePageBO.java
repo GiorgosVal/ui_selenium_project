@@ -2,7 +2,7 @@ package com.example.demo.business;
 
 import com.example.demo.enums.CabinClass;
 import com.example.demo.dto.FlightDetails;
-import com.example.demo.pages.homepage.HomePagePO;
+import com.example.demo.pages.HomePagePO;
 import com.example.demo.enums.PassengerType;
 
 import java.time.LocalDateTime;
@@ -30,12 +30,13 @@ public class HomePageBO extends BaseBO {
                 .increasePassengerSeats(PassengerType.ADULTS)
                 .increasePassengerSeats(PassengerType.CHILDREN)
                 .clickCabinClassDropdown()
-                .selectElementFromDropdown(CabinClass.FIRST.getCabinClass())
+                .selectElementFromDropdown(CabinClass.FIRST.getCabin())
                 .clickSearchFlightsButton();
         return this;
     }
 
     public HomePageBO searchFlight(FlightDetails flightDetails) {
+        navigateTo("https://www.flightnetwork.com/");
         homePagePO.clickAcceptCookies();
         switch (flightDetails.getFlightType()) {
             case RETURN:
@@ -62,7 +63,7 @@ public class HomePageBO extends BaseBO {
                 .clickPassengersDropdown();
         flightDetails.getPassengerTypeList().forEach(passengerType -> homePagePO.increasePassengerSeats(passengerType));
         homePagePO.clickCabinClassDropdown()
-                .selectElementFromDropdown(flightDetails.getCabinClass().getCabinClass())
+                .selectElementFromDropdown(flightDetails.getCabinClass().getCabin())
                 .clickSearchFlightsButton();
         if (flightDetails.isNonStopFlight()) {
             homePagePO.clickNonStopFlightsCheckbox();
@@ -79,7 +80,7 @@ public class HomePageBO extends BaseBO {
                 .clickPassengersDropdown();
         flightDetails.getPassengerTypeList().forEach(passengerType -> homePagePO.increasePassengerSeats(passengerType));
         homePagePO.clickCabinClassDropdown()
-                .selectElementFromDropdown(flightDetails.getCabinClass().getCabinClass())
+                .selectElementFromDropdown(flightDetails.getCabinClass().getCabin())
                 .clickSearchFlightsButton();
         if (flightDetails.isNonStopFlight()) {
             homePagePO.clickNonStopFlightsCheckbox();
@@ -102,7 +103,7 @@ public class HomePageBO extends BaseBO {
                 .clickPassengersDropdown();
         flightDetails.getPassengerTypeList().forEach(passengerType -> homePagePO.increasePassengerSeats(passengerType));
         homePagePO.clickCabinClassDropdown()
-                .selectElementFromDropdown(flightDetails.getCabinClass().getCabinClass())
+                .selectElementFromDropdown(flightDetails.getCabinClass().getCabin())
                 .clickSearchFlightsButton();
         if (flightDetails.isNonStopFlight()) {
             homePagePO.clickNonStopFlightsCheckbox();

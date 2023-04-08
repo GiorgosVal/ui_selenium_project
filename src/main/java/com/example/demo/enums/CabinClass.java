@@ -7,13 +7,13 @@ public enum CabinClass {
     BUSINESS("Business"),
     FIRST("First");
 
-    private final String cabinClass;
+    private final String cabin;
 
-    CabinClass(String cabinClass) {
-        this.cabinClass = cabinClass;
+    CabinClass(String cabin) {
+        this.cabin = cabin;
     }
 
-    public String getCabinClass() {
-        return this.cabinClass;
+    public String getCabin() {
+        return this.cabin;
     }
 }

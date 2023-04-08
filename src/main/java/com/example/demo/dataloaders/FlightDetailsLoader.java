@@ -1,24 +1,18 @@
-package com.example.demo;
+package com.example.demo.dataloaders;
 
-import com.example.demo.base.BaseTest;
+import com.example.demo.dto.FlightDetails;
+import com.example.demo.dto.SimpleFlight;
 import com.example.demo.enums.CabinClass;
 import com.example.demo.enums.FlightType;
 import com.example.demo.enums.PassengerType;
-import com.example.demo.dto.FlightDetails;
-import com.example.demo.dto.SimpleFlight;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.Test;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class DemoApplicationTests extends BaseTest {
+public class FlightDetailsLoader {
 
-    FlightDetails flightDetails;
-
-    @BeforeClass
-    void loadData() {
-        flightDetails = FlightDetails.builder()
+    public static FlightDetails loadOneWayFlight() {
+        return FlightDetails.builder()
                 .flightType(FlightType.ONE_WAY)
                 .simpleFlights(List.of(SimpleFlight.builder()
                         .fromInput("Athens")
@@ -31,8 +25,10 @@ public class DemoApplicationTests extends BaseTest {
                 .passengerTypeList(List.of(PassengerType.ADULTS, PassengerType.CHILDREN))
                 .cabinClass(CabinClass.FIRST)
                 .build();
+    }
 
-        flightDetails = FlightDetails.builder()
+    public static FlightDetails loadMultiCityFlight() {
+        return FlightDetails.builder()
                 .flightType(FlightType.MULTI_CITY)
                 .simpleFlights(List.of(
                         SimpleFlight.builder()
@@ -61,13 +57,4 @@ public class DemoApplicationTests extends BaseTest {
                 .cabinClass(CabinClass.FIRST)
                 .build();
     }
-
-    @Test
-    void contextLoads() {
-        homePageBO.navigateTo("https://www.flightnetwork.com/");
-        homePageBO.searchFlight(flightDetails);
-        System.out.println();
-    }
-
-
 }

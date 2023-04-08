@@ -1,19 +1,15 @@
 <!DOCTYPE suite SYSTEM "https://testng.org/testng-1.0.dtd" >
 
-<suite name="Test Amazon Product Selection" verbose="1">
+<suite name="Test Flight Network" verbose="1">
     <parameter name="url" value="https://www.flightnetwork.com/"/>
     <parameter name="browser" value="chrome"/>
     <parameter name="local" value="true"/>
     <parameter name="timeout" value="5"/>
     <parameter name="headless" value="false"/>
 
-<!--    <listeners>-->
-<!--        <listener class-name="com.persado.oss.quality.stevia.selenium.listeners.TestListener"/>-->
-<!--        <listener class-name="org.uncommons.reportng.HTMLReporter"/>-->
-<!--    </listeners>-->
-    <test name="Regression Tests">
+    <test name="Filters tests">
         <classes>
-            <class name="com.example.demo.DemoApplicationTests"/>
+            <class name="com.example.demo.filters.FiltersTest"/>
         </classes>
     </test>
 </suite>

@@ -1,11 +1,17 @@
-package com.example.demo.pages.results;
+package com.example.demo.pages;
 
+import com.example.demo.actions.Actions;
 import org.openqa.selenium.By;
 
-public class ResultsLocators {
+public class FiltersPO extends Actions {
+
+    /*
+     * --------------------------------------------------------------------------------------------------
+     * ----------------------------------------- LOCATORS -----------------------------------------------
+     * --------------------------------------------------------------------------------------------------
+     */
     private enum Locators {
 
-        FLIGHTS_RESULTS_COUNTER("[data-testid='resultPage-filters-text'] + span"),
         FILTERS_BUTTON("[data-testid='resultPage-toggleFiltersButton-button']"),
         NUMBER_OF_STOPS_FILTER("[data-testid='MAX_STOPS-%s']"), //'direct'    'max1'   'all'
         GENERIC_SLIDER_FILTER_HANDLE("[data-testid='resultPage-%s-content'] [data-testid='handle-%s']"),     //the 1st is one of: PRICEFilter, departureArrival0Filter, departureArrival1Filter, TRAVEL_TIMEFilter - the 2nd is 0 for the low handle, 1 for the high handle
@@ -33,7 +39,6 @@ public class ResultsLocators {
         }
     }
 
-    protected final By flightResultsCounter = By.cssSelector(Locators.FLIGHTS_RESULTS_COUNTER.get());
     protected final By filtersToggleButton = By.cssSelector(Locators.FILTERS_BUTTON.get());
     // stops filter
     protected final By nonStopFlightsFilterButton = By.cssSelector(Locators.NUMBER_OF_STOPS_FILTER.get("direct"));
@@ -81,5 +86,14 @@ public class ResultsLocators {
     // clear - select
     protected final By clearAllFiltersButton = By.cssSelector(Locators.CLEAR_APPLY_FILTERS_BUTTON.get("reset"));
     protected final By applyAllFiltersButton = By.cssSelector(Locators.CLEAR_APPLY_FILTERS_BUTTON.get("apply"));
+
+    /*
+     * --------------------------------------------------------------------------------------------------
+     * ------------------------------------- PAGE OBJECT METHODS ----------------------------------------
+     * --------------------------------------------------------------------------------------------------
+     */
+
+
+
 
 }
