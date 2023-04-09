@@ -6,8 +6,12 @@ import com.example.demo.utils.StringUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.regex.Pattern;
 
 public class FlightResultsPO extends Actions {
 
@@ -21,11 +25,13 @@ public class FlightResultsPO extends Actions {
         QUICK_SORT_BUTTON("//button[@data-testid='result-quick-sort-button']//span[contains(text(),'%s')]"),
         ALL_TRIPS("[data-testId*='resultPage-resultTrip-']"),
         FLIGHT("[data-testId='tripDetails-bound']"),
-        FLIGHT_AIRLINE_NAME("div[data-testid='tripDetails-segment'] div img + div"),
+        FLIGHT_AIRLINE_NAME("div[data-testid='tripDetails-segment'] div img + div div"),
         FLIGHT_TIME("[data-testid='trip-segment-%s-time'] span"),    // origin, destination
+        FLIGHT_STOPS("[data-testid='searchResults-segment-stops']"),
         FLIGHT_DURATION("[data-testid='searchResults-segment-duration']"),
-        FLIGHT_PRICE("[data-testid='result-trip-price-%s']"), // standard, flex
-        FLIGHT_STOPS("[data-testid='searchResults-segment-stops']");
+        TRIP_PRICE("[data-testid='result-trip-price-%s']"), // standard, flex
+
+        ;
 
         String locator;
 
@@ -54,9 +60,10 @@ public class FlightResultsPO extends Actions {
     private final By flightDepartureTimeLocator = By.cssSelector(Locators.FLIGHT_TIME.get("origin"));
     private final By flightArrivalTimeLocator = By.cssSelector(Locators.FLIGHT_TIME.get("destination"));
     private final By flightDurationLocator = By.cssSelector(Locators.FLIGHT_DURATION.get());
-    private final By flightPriceStandardLocator = By.cssSelector(Locators.FLIGHT_PRICE.get("standard"));
-    private final By flightPriceFlexibleLocator = By.cssSelector(Locators.FLIGHT_PRICE.get("flex"));
     private final By flightStopsLocator = By.cssSelector(Locators.FLIGHT_STOPS.get());
+    private final By tripPriceStandardLocator = By.cssSelector(Locators.TRIP_PRICE.get("standard"));
+    private final By tripPriceFlexibleLocator = By.cssSelector(Locators.TRIP_PRICE.get("flex"));
+
 
     /*
      * --------------------------------------------------------------------------------------------------
@@ -91,8 +98,96 @@ public class FlightResultsPO extends Actions {
      * @return - a list containing all the trips found
      */
     public List<WebElement> getAllTrips() {
-        return waitUntilElementsAreVisible(allTripsLocator);
+        return waitUntilElementsAreVisibleWithRetry(allTripsLocator);
     }
+
+    /**
+     * Returns all the flights of a trip
+     *
+     * @param trip - The trip web element
+     * @return - a list with the flights
+     */
+    public List<WebElement> getTripFlights(WebElement trip) {
+        return trip.findElements(flightLocator);
+    }
+
+    /**
+     * Returns the airline name for a flight
+     *
+     * @param flight - The flight web element
+     * @return - the airline name
+     */
+    public String getFlightAirlineName(WebElement flight) {
+        return flight.findElement(flightAirLineNameLocator).getText();
+    }
+
+    /**
+     * Returns the arrival time of a flight
+     *
+     * @param flight - The flight web element
+     * @return - the arrival time
+     */
+    public LocalTime getFlightArrivalTime(WebElement flight) {
+        return LocalTime.parse(flight.findElement(flightArrivalTimeLocator).getText(), DateTimeFormatter.ofPattern("HH:mm"));
+    }
+
+    /**
+     * Returns the departure time of a flight
+     *
+     * @param flight - The flight web element
+     * @return - the departure time
+     */
+    public LocalTime getFlightDepartureTime(WebElement flight) {
+        return LocalTime.parse(flight.findElement(flightDepartureTimeLocator).getText(), DateTimeFormatter.ofPattern("HH:mm"));
+    }
+
+    /**
+     * Returns the duration of a flight
+     *
+     * @param flight - The flight web element
+     * @return - the duration
+     */
+    public Duration getFlightDurationTime(WebElement flight) {
+        String duration = flight.findElement(flightDurationLocator).getText();
+        String hours = StringUtils.extractFromStringUsingPattern(duration, Pattern.compile("\\d+(?=h\\s*\\d+min)"));
+        String minutes = StringUtils.extractFromStringUsingPattern(duration, Pattern.compile("\\d+(?=min)"));
+        return Duration.ofHours(Long.parseLong(hours != null ? hours : "0")).plusMinutes(Long.parseLong(minutes != null ? minutes : "0"));
+    }
+
+    /**
+     * Returns the stops of a flight
+     *
+     * @param flight - The flight web element
+     * @return - the stops
+     */
+    public int getFlightStops(WebElement flight) {
+        int stops = 0;
+        if (elementExistsNoWait(flight, flightStopsLocator)) {
+            stops = Integer.parseInt(StringUtils.extractFirstNumberFromString(flight.findElement(flightStopsLocator).getText()));
+        }
+        return stops;
+    }
+
+    /**
+     * Returns the standard price of a trip
+     *
+     * @param trip - The trip web element
+     * @return - the standard price
+     */
+    public Float getTripStandardPrice(WebElement trip) {
+        return Float.valueOf(StringUtils.extractPriceFromString(trip.findElement(tripPriceStandardLocator).getText()).replace(",", ""));
+    }
+
+    /**
+     * Returns the flexible price of a trip
+     *
+     * @param trip - The trip web element
+     * @return - the /** price
+     */
+    public Float getTripFlexiblePrice(WebElement trip) {
+        return Float.valueOf(StringUtils.extractPriceFromString(trip.findElement(tripPriceFlexibleLocator).getText()).replace(",", ""));
+    }
+
 
     /**
      * Converts a list of trips, to a map containing the all flights of all trips according to their type
@@ -112,7 +207,7 @@ public class FlightResultsPO extends Actions {
         trips.forEach(trip -> {
             waitUntilElementsAreVisible(flightLocator);
             AtomicInteger flightTypeIndex = new AtomicInteger();
-            trip.findElements(flightLocator).forEach(flightType -> {
+            getTripFlights(trip).forEach(flightType -> {
                 List<WebElement> flightsRegistered;
                 if (flightsMap.containsKey(flightTypeIndex.get())) {
                     flightsRegistered = flightsMap.get(flightTypeIndex.get());

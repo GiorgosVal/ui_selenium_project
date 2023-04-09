@@ -4,6 +4,8 @@ import com.example.demo.enums.PassengerType;
 import com.example.demo.actions.Actions;
 import com.example.demo.factories.WebDriverFactory;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
+import org.openqa.selenium.TimeoutException;
 import org.openqa.selenium.WebElement;
 
 import java.time.LocalDateTime;
@@ -138,7 +140,11 @@ public class HomePagePO extends Actions {
      * @return - this
      */
     public HomePagePO clickAcceptCookies() {    //TODO make this optional
-        waitUntilElementIsClickable(acceptCookiesLocator).click();
+        try {
+            waitUntilElementIsClickable(acceptCookiesLocator).click();
+        } catch (NoSuchElementException | TimeoutException e) {
+            //TODO
+        }
         return this;
     }
 

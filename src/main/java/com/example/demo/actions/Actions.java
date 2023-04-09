@@ -1,27 +1,48 @@
 package com.example.demo.actions;
 
 import com.example.demo.factories.WebDriverFactory;
-import org.openqa.selenium.*;
+import lombok.extern.slf4j.Slf4j;
+import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 import java.time.Duration;
 import java.util.List;
 
+@Slf4j
 public class Actions {
 
     int timeoutSeconds = 20;    //TODO maybe this can be dynamically passed in BaseTest setup
+    int retryMaxAttempts = 2;
 
     protected WebElement waitUntilElementIsVisible(By locator) {
+        waitUntilDocumentIsReady();
         WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         return WebDriverFactory.getDriver().findElement(locator);
     }
 
     protected List<WebElement> waitUntilElementsAreVisible(By locator) {
+        waitUntilDocumentIsReady();
         WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
         wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
         return WebDriverFactory.getDriver().findElements(locator);
+    }
+
+    protected List<WebElement> waitUntilElementsAreVisibleWithRetry(By locator) {
+        int attempts = 0;
+        while (attempts < retryMaxAttempts) {
+            try {
+                return waitUntilElementsAreVisible(locator);
+            } catch (StaleElementReferenceException e) {
+                System.out.println("StaleElementReferenceException!!!! retying...");    //TODO log
+            }
+            attempts++;
+        }
+        return null;
     }
 
     protected WebElement waitUntilElementIsClickable(By locator) {
@@ -40,6 +61,34 @@ public class Actions {
         return webElements;
     }
 
+    protected boolean elementExistsNoWait(By locator) {
+        waitUntilDocumentIsReady();
+        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(0));
+        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
+    }
+
+    /**
+     * Checks if an element exists inside a web element, without waiting for timeout
+     *
+     * @param webElement - The web element inside which the existence of the element will be evaluated
+     * @param locator    - The locator for the element to check
+     * @return - true if the element exists, false otherwise
+     */
+    protected boolean elementExistsNoWait(WebElement webElement, By locator) {
+        waitUntilDocumentIsReady();
+        Duration oldTimeout = WebDriverFactory.getDriver().manage().timeouts().getImplicitWaitTimeout();
+        WebDriverFactory.getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
+        boolean isDisplayed = false;
+        try {
+            isDisplayed = webElement.findElement(locator).isDisplayed();
+        } catch (Exception e) {
+            System.out.println(">>>>>");//TODO
+        } finally {
+            WebDriverFactory.getDriver().manage().timeouts().implicitlyWait(oldTimeout);
+        }
+        return isDisplayed;
+    }
+
     /**
      * Scrolls the window to the element specified by the locator.
      * <p>
@@ -55,5 +104,27 @@ public class Actions {
             js = "document.evaluate(\"" + ((By.ByXPath) locator).getRemoteParameters().value() + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.scrollIntoView({behavior: \"auto\", block: \"center\", inline: \"center\"});";
         }
         ((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(js);
+    }
+
+    protected void waitUntilDocumentIsReady() {
+        int waited = 0;
+        int secondsToWaitEach = 5;
+        String js = "return document.readyState";
+        System.out.println("before synchronized");
+        log.info("Wait until document is ready.");
+        synchronized (WebDriverFactory.getDriver()) {
+            System.out.println("inside synchronized");
+            while (!((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(js).toString().equalsIgnoreCase("complete") && waited < timeoutSeconds) {
+                System.out.println("in while");
+                try {
+                    WebDriverFactory.getDriver().wait(secondsToWaitEach * 1000L);
+                    waited = waited + secondsToWaitEach;
+                    System.out.println("Waited " + waited + " for document to be ready");
+                    log.info("Waited {} for document to be ready", waited);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 }
