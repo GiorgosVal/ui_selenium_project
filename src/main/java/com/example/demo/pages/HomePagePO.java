@@ -1,7 +1,7 @@
 package com.example.demo.pages;
 
 import com.example.demo.enums.PassengerType;
-import com.example.demo.actions.Actions;
+import com.example.demo.actions.BaseCommands;
 import com.example.demo.factories.WebDriverFactory;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
@@ -14,7 +14,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Objects;
 
-public class HomePagePO extends Actions {
+public class HomePagePO extends BaseCommands {
 
     /*
      * --------------------------------------------------------------------------------------------------

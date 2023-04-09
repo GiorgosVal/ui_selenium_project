@@ -4,6 +4,7 @@ import com.example.demo.business.FlightResultsBO;
 import com.example.demo.business.HomePageBO;
 import com.example.demo.factories.BrowserFactory;
 import com.example.demo.factories.WebDriverFactory;
+import com.example.demo.pages.FiltersPO;
 import org.openqa.selenium.WebDriver;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -13,6 +14,7 @@ public class BaseTest {
 
     public HomePageBO homePageBO;
     public FlightResultsBO flightResultsBO;
+    public FiltersPO filtersPO;
 
     @Parameters({"url", "browser", "local", "timeout", "headless"})
     @BeforeClass
@@ -23,6 +25,7 @@ public class BaseTest {
 
         homePageBO = new HomePageBO();
         flightResultsBO = new FlightResultsBO();
+        filtersPO = new FiltersPO();
     }
 
     @AfterClass

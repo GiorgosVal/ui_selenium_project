@@ -1,8 +1,9 @@
 package com.example.demo.pages;
 
-import com.example.demo.actions.Actions;
+import com.example.demo.actions.BaseCommands;
 import com.example.demo.enums.QuickSortButton;
 import com.example.demo.utils.StringUtils;
+import com.example.demo.utils.TimeUtils;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
@@ -11,9 +12,8 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Pattern;
 
-public class FlightResultsPO extends Actions {
+public class FlightResultsPO extends BaseCommands {
 
     /*
      * --------------------------------------------------------------------------------------------------
@@ -22,6 +22,8 @@ public class FlightResultsPO extends Actions {
      */
     private enum Locators {
         FLIGHTS_RESULTS_COUNTER("[data-testid='resultPage-filters-text'] + span"),
+        FILTERS_BUTTON("[data-testid='resultPage-toggleFiltersButton-button']"),
+        FILTERS_CONTENT("[data-testid='resultPage-searchFilters-content']"),
         QUICK_SORT_BUTTON("//button[@data-testid='result-quick-sort-button']//span[contains(text(),'%s')]"),
         ALL_TRIPS("[data-testId*='resultPage-resultTrip-']"),
         FLIGHT("[data-testId='tripDetails-bound']"),
@@ -49,6 +51,10 @@ public class FlightResultsPO extends Actions {
     }
 
     private final By flightResultsCounterLocator = By.cssSelector(Locators.FLIGHTS_RESULTS_COUNTER.get());
+
+    private final By filtersToggleButton = By.cssSelector(Locators.FILTERS_BUTTON.get());
+
+    private final By filtersContentLocator = By.cssSelector(Locators.FILTERS_CONTENT.get());
 
     private By quickSortButtonLocator(QuickSortButton quickSortButton) {
         return By.xpath(Locators.QUICK_SORT_BUTTON.get(quickSortButton.getButton()));
@@ -79,6 +85,25 @@ public class FlightResultsPO extends Actions {
     public int getFlightsResultsCount() {
         return Integer.parseInt(Objects.requireNonNull(
                 StringUtils.extractFirstNumberFromString(waitUntilElementIsVisible(flightResultsCounterLocator).getText())));
+    }
+
+    /**
+     * Clicks the filters toggle
+     *
+     * @return - this
+     */
+    public FlightResultsPO clickFiltersToggle() {
+        waitUntilElementIsClickable(filtersToggleButton).click();
+        return this;
+    }
+
+    /**
+     * Checks if the filters are displayed
+     *
+     * @return - true if displayed, false otherwise
+     */
+    public boolean areFiltersDisplayed() {
+        return elementExistsNoWait(waitUntilElementIsVisible(By.cssSelector("body")), filtersContentLocator);
     }
 
     /**
@@ -149,9 +174,7 @@ public class FlightResultsPO extends Actions {
      */
     public Duration getFlightDurationTime(WebElement flight) {
         String duration = flight.findElement(flightDurationLocator).getText();
-        String hours = StringUtils.extractFromStringUsingPattern(duration, Pattern.compile("\\d+(?=h\\s*\\d+min)"));
-        String minutes = StringUtils.extractFromStringUsingPattern(duration, Pattern.compile("\\d+(?=min)"));
-        return Duration.ofHours(Long.parseLong(hours != null ? hours : "0")).plusMinutes(Long.parseLong(minutes != null ? minutes : "0"));
+        return TimeUtils.stringToDuration(duration);
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.example.demo.business;
 
+import com.example.demo.pages.FiltersPO;
 import com.example.demo.pages.FlightResultsPO;
 import com.example.demo.validation.actual.Flight;
 import com.example.demo.validation.actual.Trip;
@@ -11,9 +12,11 @@ import java.util.List;
 public class FlightResultsBO extends BaseBO {
 
     FlightResultsPO flightResultsPO;
+    FiltersPO filtersPO;
 
     public FlightResultsBO() {
         flightResultsPO = new FlightResultsPO();
+        filtersPO = new FiltersPO();
     }
 
     public List<Trip> getActualTrips() {
@@ -38,6 +41,20 @@ public class FlightResultsBO extends BaseBO {
                     .build());
         });
         return actualTrips;
+    }
+
+    public FlightResultsBO openFilters() {
+        if (!flightResultsPO.areFiltersDisplayed()) {
+            flightResultsPO.clickFiltersToggle();
+        }
+        return this;
+    }
+
+    public FlightResultsBO closeFilters() {
+        if (flightResultsPO.areFiltersDisplayed()) {
+            flightResultsPO.clickFiltersToggle();
+        }
+        return this;
     }
 
 

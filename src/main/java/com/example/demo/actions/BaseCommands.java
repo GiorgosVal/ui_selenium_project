@@ -6,6 +6,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
@@ -13,22 +14,41 @@ import java.time.Duration;
 import java.util.List;
 
 @Slf4j
-public class Actions {
+public class BaseCommands {
 
     int timeoutSeconds = 20;    //TODO maybe this can be dynamically passed in BaseTest setup
     int retryMaxAttempts = 2;
 
     protected WebElement waitUntilElementIsVisible(By locator) {
-        waitUntilDocumentIsReady();
+        //waitUntilDocumentIsReady();
         WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
         wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
         return WebDriverFactory.getDriver().findElement(locator);
     }
 
+    protected void waitUntilElementIsInvisible(By locator) {
+        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
+        wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    }
+
     protected List<WebElement> waitUntilElementsAreVisible(By locator) {
-        waitUntilDocumentIsReady();
+        //waitUntilDocumentIsReady();
         WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
         wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
+        return WebDriverFactory.getDriver().findElements(locator);
+    }
+
+    protected WebElement waitUntilElementIsPresent(By locator) {
+        //waitUntilDocumentIsReady();
+        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+        return WebDriverFactory.getDriver().findElement(locator);
+    }
+
+    protected List<WebElement> waitUntilElementsArePresent(By locator) {
+        //waitUntilDocumentIsReady();
+        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
+        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
         return WebDriverFactory.getDriver().findElements(locator);
     }
 
@@ -62,7 +82,7 @@ public class Actions {
     }
 
     protected boolean elementExistsNoWait(By locator) {
-        waitUntilDocumentIsReady();
+        //waitUntilDocumentIsReady();
         WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(0));
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
     }
@@ -75,7 +95,7 @@ public class Actions {
      * @return - true if the element exists, false otherwise
      */
     protected boolean elementExistsNoWait(WebElement webElement, By locator) {
-        waitUntilDocumentIsReady();
+        //waitUntilDocumentIsReady();
         Duration oldTimeout = WebDriverFactory.getDriver().manage().timeouts().getImplicitWaitTimeout();
         WebDriverFactory.getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
         boolean isDisplayed = false;
@@ -126,5 +146,21 @@ public class Actions {
                 }
             }
         }
+    }
+
+    protected void clickElementWithJs(By locator) {
+        String js = "";
+        if (locator.getClass().equals(By.ByCssSelector.class)) {
+            js = "document.querySelector(\"" + ((By.ByCssSelector) locator).getRemoteParameters().value() + "\").click();";
+        } else if (locator.getClass().equals(By.ByXPath.class)) {
+            js = "document.evaluate(\"" + ((By.ByXPath) locator).getRemoteParameters().value() + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click();";
+        }
+        ((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(js);
+    }
+
+    protected void slideElement(By locator, int x, int y) {
+        WebElement sliderHandle = waitUntilElementIsClickable(locator);
+        Actions actions = new Actions(WebDriverFactory.getDriver());
+        actions.dragAndDropBy(sliderHandle, x, y).perform();
     }
 }

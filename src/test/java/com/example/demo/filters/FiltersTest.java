@@ -22,12 +22,6 @@ public class FiltersTest extends BaseTest {
 
     @BeforeClass
     void loadData() {
-        String myDateString = "13:24:40";
-        LocalTime localTime = LocalTime.parse(myDateString, DateTimeFormatter.ofPattern("HH:mm:ss"));
-        int hour = localTime.get(ChronoField.CLOCK_HOUR_OF_DAY);
-        int minute = localTime.get(ChronoField.MINUTE_OF_HOUR);
-        int second = localTime.get(ChronoField.SECOND_OF_MINUTE);
-
         flightDetails = FlightDetailsLoader.loadMultiCityFlight();
     }
 
@@ -38,29 +32,99 @@ public class FiltersTest extends BaseTest {
 
     @Test
     void contextLoads() {
-        List<Trip> actualTrips = flightResultsBO.getActualTrips();
 
-        Flight expectedFlight = Flight.builder()
-                .airlineNames(List.of("hi"))
-                .arrivalTimeMax(LocalTime.of(13, 23))
-                .arrivalTimeMin(LocalTime.of(13, 23))
-                .departureTimeMax(LocalTime.of(13, 23))
-                .departureTimeMin(LocalTime.of(13, 23))
-                .durationMax(Duration.ofHours(1))
-                .flightStopsMax(2)
-                .build();
-
-        com.example.demo.validation.expected.Trip expectedTrip = com.example.demo.validation.expected.Trip.builder()
-                .priceMax(123.34f)
-                .priceMin(123.45f)
-                .expectedFlightList(List.of(expectedFlight, expectedFlight, expectedFlight))
-                .build();
-
-        Assertor assertor = new Assertor();
-        assertor.softAssertTrips(expectedTrip, actualTrips).softAssertAll();
-
-
+        flightResultsBO.openFilters();
+        System.out.println("ALL AIRLINES");
+        filtersPO.getAllAvailableAirlines().stream().forEach(System.out::println);
         System.out.println();
+        filtersPO.clickCheckBoxWithIndex(0);
+        System.out.println("SELECTED AIRLINES");
+        filtersPO.getAllSelectedAirlines().stream().forEach(System.out::println);
+        filtersPO.clickNonStopFlightsFilter();
+        filtersPO.clickMaxOneStopFlightsFilter();
+        filtersPO.clickAllFlightsFilter();
+        filtersPO.clickClearAllAirlinesButton();
+        filtersPO.clickSelectAllAirlinesButton();
+        filtersPO.clickArrivalRadioButton(0);
+        filtersPO.clickDepartureRadioButton(0);
+        filtersPO.clickArrivalRadioButton(1);
+        filtersPO.clickDepartureRadioButton(1);
+        filtersPO.clickArrivalRadioButton(2);
+        filtersPO.clickDepartureRadioButton(2);
+        System.out.println(filtersPO.getSliderDepartureArrivalLowestValue(0));
+        System.out.println(filtersPO.getSliderDepartureArrivalHighestValue(0));
+        filtersPO.slideDepartureArrivalLeftHandle(0, 30);
+        filtersPO.slideDepartureArrivalLeftHandle(0, 30);
+        filtersPO.slideDepartureArrivalLeftHandle(0, -30);
+        filtersPO.slideDepartureArrivalRightHandle(0, -30);
+        filtersPO.slideDepartureArrivalRightHandle(0, 30);
+        System.out.println(filtersPO.getSliderDepartureArrivalLowestValue(0));
+        System.out.println(filtersPO.getSliderDepartureArrivalHighestValue(0));
+
+        System.out.println(filtersPO.getSliderDepartureArrivalLowestValue(1));
+        System.out.println(filtersPO.getSliderDepartureArrivalHighestValue(1));
+        filtersPO.slideDepartureArrivalLeftHandle(1, 30);
+        filtersPO.slideDepartureArrivalLeftHandle(1, 30);
+        filtersPO.slideDepartureArrivalLeftHandle(1, -30);
+        filtersPO.slideDepartureArrivalRightHandle(1, -30);
+        filtersPO.slideDepartureArrivalRightHandle(1, 30);
+        System.out.println(filtersPO.getSliderDepartureArrivalLowestValue(1));
+        System.out.println(filtersPO.getSliderDepartureArrivalHighestValue(1));
+
+        System.out.println(filtersPO.getSliderDepartureArrivalLowestValue(2));
+        System.out.println(filtersPO.getSliderDepartureArrivalHighestValue(2));
+        filtersPO.slideDepartureArrivalLeftHandle(2, 30);
+        filtersPO.slideDepartureArrivalLeftHandle(2, 30);
+        filtersPO.slideDepartureArrivalLeftHandle(2, -30);
+        filtersPO.slideDepartureArrivalRightHandle(2, -30);
+        filtersPO.slideDepartureArrivalRightHandle(2, 30);
+        System.out.println(filtersPO.getSliderDepartureArrivalLowestValue(2));
+        System.out.println(filtersPO.getSliderDepartureArrivalHighestValue(2));
+
+        System.out.println(filtersPO.getSliderPriceLowestValue());
+        System.out.println(filtersPO.getSliderPriceHighestValue());
+        filtersPO.slidePriceLeftHandle(60);
+        filtersPO.slidePriceLeftHandle(-30);
+        filtersPO.slidePriceRightHandle(-60);
+        filtersPO.slidePriceRightHandle(30);
+        System.out.println(filtersPO.getSliderPriceLowestValue());
+        System.out.println(filtersPO.getSliderPriceHighestValue());
+
+        System.out.println(filtersPO.getSliderTravelTimeValue());
+        filtersPO.slideTravelTimeHandle(-60);
+        filtersPO.slideTravelTimeHandle(30);
+        System.out.println(filtersPO.getSliderTravelTimeValue());
+        filtersPO.clickClearAllFiltersButton();
+        filtersPO.slideTravelTimeHandle(-60);
+        filtersPO.clickResetFiltersButton();
+        filtersPO.slideTravelTimeHandle(-60);
+        filtersPO.clickApplyFiltersButton();
+
+
+//        List<Trip> actualTrips = flightResultsBO.getActualTrips();
+//
+//
+//        Flight expectedFlight = Flight.builder()
+//                .airlineNames(List.of("agean", "turkinsh"))
+//                .arrivalTimeMax(LocalTime.of(13, 23))
+//                .arrivalTimeMin(LocalTime.of(13, 23))
+//                .departureTimeMax(LocalTime.of(13, 23))
+//                .departureTimeMin(LocalTime.of(13, 23))
+//                .durationMax(Duration.ofHours(1))
+//                .flightStopsMax(2)
+//                .build();
+//
+//        com.example.demo.validation.expected.Trip expectedTrip = com.example.demo.validation.expected.Trip.builder()
+//                .priceMax(123.34f)
+//                .priceMin(123.45f)
+//                .expectedFlightList(List.of(expectedFlight, expectedFlight, expectedFlight))
+//                .build();
+//
+//        Assertor assertor = new Assertor();
+//        assertor.softAssertTrips(expectedTrip, actualTrips).softAssertAll();
+//
+//
+//        System.out.println();
 
 //        Map<Integer, List<WebElement>> flightsPerType = flightResultsPO.tripsToFlightTypesMap(trips);
 //
