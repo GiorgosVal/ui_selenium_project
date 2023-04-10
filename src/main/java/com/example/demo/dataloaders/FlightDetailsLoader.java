@@ -44,13 +44,6 @@ public class FlightDetailsLoader {
                                 .toInput("Amsterdam")
                                 .toAirport("Amsterdam, Netherlands")
                                 .departureDate(LocalDateTime.now().plusDays(50))
-                                .build(),
-                        SimpleFlight.builder()
-                                .fromInput("Cairo")
-                                .fromAirport("Cairo (All airports), Egypt")
-                                .toInput("Tokyo")
-                                .toAirport("Tokyo (All airports), Japan")
-                                .departureDate(LocalDateTime.now().plusDays(60))
                                 .build()
                 ))
                 .passengerTypeList(List.of(PassengerType.ADULTS, PassengerType.CHILDREN))

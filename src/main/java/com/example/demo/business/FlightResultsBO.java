@@ -2,8 +2,8 @@ package com.example.demo.business;
 
 import com.example.demo.pages.FiltersPO;
 import com.example.demo.pages.FlightResultsPO;
-import com.example.demo.validation.actual.Flight;
-import com.example.demo.validation.actual.Trip;
+import com.example.demo.validation.actual.ActualFlight;
+import com.example.demo.validation.actual.ActualTrip;
 import org.openqa.selenium.WebElement;
 
 import java.util.ArrayList;
@@ -19,28 +19,64 @@ public class FlightResultsBO extends BaseBO {
         filtersPO = new FiltersPO();
     }
 
-    public List<Trip> getActualTrips() {
-        List<WebElement> trips = flightResultsPO.getAllTrips();
-        List<Trip> actualTrips = new ArrayList<>();
-        trips.forEach(trip -> {
-            List<WebElement> flights = flightResultsPO.getTripFlights(trip);
-            List<Flight> actualFlights = new ArrayList<>();
-            flights.forEach(flight -> {
-                actualFlights.add(Flight.builder()
-                        .airlineName(flightResultsPO.getFlightAirlineName(flight))
-                        .departureTime(flightResultsPO.getFlightDepartureTime(flight))
-                        .arrivalTime(flightResultsPO.getFlightArrivalTime(flight))
-                        .flightDuration(flightResultsPO.getFlightDurationTime(flight))
-                        .flightStops(flightResultsPO.getFlightStops(flight))
+    /**
+     * Returns the number of flight results
+     *
+     * @return - the number of flights
+     */
+    public int getFlightResultsCount() {
+        return flightResultsPO.getFlightsResultsCount();
+    }
+
+    /**
+     * Returns the applied filters labels
+     *
+     * @return - a list of the applied filters
+     */
+    public List<String> getAppliedFilters() {
+        return flightResultsPO.getAppliedFilters();
+    }
+
+    /**
+     * Returns the actual trips. If none trip is found returns an empty list
+     *
+     * @return - the actual trips, or empty
+     */
+    public List<ActualTrip> getActualTrips() {
+        List<ActualTrip> actualTrips = new ArrayList<>();
+        try {
+            List<WebElement> trips = flightResultsPO.getAllTrips();
+            trips.forEach(trip -> {
+                List<WebElement> flights = flightResultsPO.getTripFlights(trip);
+                List<ActualFlight> actualFlights = new ArrayList<>();
+                flights.forEach(flight -> {
+                    actualFlights.add(ActualFlight.builder()
+                            .airlineName(flightResultsPO.getFlightAirlineName(flight))
+                            .departureTime(flightResultsPO.getFlightDepartureTime(flight))
+                            .arrivalTime(flightResultsPO.getFlightArrivalTime(flight))
+                            .flightDuration(flightResultsPO.getFlightDurationTime(flight))
+                            .flightStops(flightResultsPO.getFlightStops(flight))
+                            .build());
+                });
+                actualTrips.add(ActualTrip.builder()
+                        .standardPrice(flightResultsPO.getTripStandardPrice(trip))
+                        //.flexiblePrice(flightResultsPO.getTripFlexiblePrice(trip))
+                        .actualFlightList(actualFlights)
                         .build());
             });
-            actualTrips.add(Trip.builder()
-                    .standardPrice(flightResultsPO.getTripStandardPrice(trip))
-                    //.flexiblePrice(flightResultsPO.getTripFlexiblePrice(trip))
-                    .actualFlightList(actualFlights)
-                    .build());
-        });
+        } catch (Exception e) {
+            System.out.println("No trips!");
+        }
         return actualTrips;
+    }
+
+    /**
+     * Checks if the trips lists is empty
+     *
+     * @return - true if the list is empty, false otherwise
+     */
+    public boolean areTripsEmpty() {
+        return flightResultsPO.areTripsEmpty();
     }
 
     public FlightResultsBO openFilters() {

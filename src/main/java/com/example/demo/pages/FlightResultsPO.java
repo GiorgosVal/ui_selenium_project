@@ -23,6 +23,7 @@ public class FlightResultsPO extends BaseCommands {
     private enum Locators {
         FLIGHTS_RESULTS_COUNTER("[data-testid='resultPage-filters-text'] + span"),
         FILTERS_BUTTON("[data-testid='resultPage-toggleFiltersButton-button']"),
+        APPLIED_FILERS("[data-testid='resultPage-filterHeader-selectedFiltersIndicator'] div"),
         FILTERS_CONTENT("[data-testid='resultPage-searchFilters-content']"),
         QUICK_SORT_BUTTON("//button[@data-testid='result-quick-sort-button']//span[contains(text(),'%s')]"),
         ALL_TRIPS("[data-testId*='resultPage-resultTrip-']"),
@@ -53,6 +54,8 @@ public class FlightResultsPO extends BaseCommands {
     private final By flightResultsCounterLocator = By.cssSelector(Locators.FLIGHTS_RESULTS_COUNTER.get());
 
     private final By filtersToggleButton = By.cssSelector(Locators.FILTERS_BUTTON.get());
+
+    private final By appliedFiltersLocator = By.cssSelector(Locators.APPLIED_FILERS.get());
 
     private final By filtersContentLocator = By.cssSelector(Locators.FILTERS_CONTENT.get());
 
@@ -107,6 +110,17 @@ public class FlightResultsPO extends BaseCommands {
     }
 
     /**
+     * Returns the applied filters labels
+     *
+     * @return - a list of the applied filters
+     */
+    public List<String> getAppliedFilters() {
+        List<String> appliedFilters = new ArrayList<>();
+        waitUntilElementsAreVisible(appliedFiltersLocator).forEach(filter -> appliedFilters.add(filter.getText()));
+        return appliedFilters;
+    }
+
+    /**
      * Clicks the quick sort button specified
      *
      * @param quickSortButton - The {@link QuickSortButton} to click
@@ -124,6 +138,16 @@ public class FlightResultsPO extends BaseCommands {
      */
     public List<WebElement> getAllTrips() {
         return waitUntilElementsAreVisibleWithRetry(allTripsLocator);
+    }
+
+    /**
+     * Checks if the trips lists is empty
+     *
+     * @return - true if the list is empty, false otherwise
+     */
+    public boolean areTripsEmpty() {
+        waitUntilElementIsInvisible(allTripsLocator);
+        return elementNotExistsNoWait(allTripsLocator);
     }
 
     /**

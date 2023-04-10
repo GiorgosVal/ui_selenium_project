@@ -1,6 +1,7 @@
 package com.example.demo.pages;
 
 import com.example.demo.actions.BaseCommands;
+import com.example.demo.business.FiltersBO;
 import com.example.demo.utils.StringUtils;
 import com.example.demo.utils.TimeUtils;
 import org.openqa.selenium.By;
@@ -26,7 +27,7 @@ public class FiltersPO extends BaseCommands {
         GENERIC_SLIDER_FILTER_HANDLE("[data-testid='resultPage-%s-content'] [data-testid='handle-%s']"),     //the 1st is one of: PRICEFilter, departureArrival0Filter, departureArrival1Filter, TRAVEL_TIMEFilter - the 2nd is 0 for the low handle, 1 for the high handle
         GENERIC_SLIDER_FILTER_LOWEST_VALUE("[data-testid='resultPage-%s-content'] .slider-tracks + div"),            //the 1st is one of: PRICEFilter, departureArrival0Filter, departureArrival1Filter, TRAVEL_TIMEFilter
         GENERIC_SLIDER_FILTER_HIGHEST_VALUE("[data-testid='resultPage-%s-content'] .slider-tracks + div + div"),     //the 1st is one of: PRICEFilter, departureArrival0Filter, departureArrival1Filter
-        GENERIC_SLIDER_CLEAR_FILTER_BUTTON("[data-testid='resultPage-filterHeader-%sFilterResetButton-button']"),    //PRICE, departureArrival0, TRAVEL_TIME
+        GENERIC_RESET_FILTER_BUTTON("[data-testid='resultPage-filterHeader-%sFilterResetButton-button']"),    //MAX_STOPS, PRICE, AIRLINES, departureArrival0, TRAVEL_TIME
         AIRLINES_FILTER_CLEAR_ALL("[data-testid='resultPage-AIRLINESFilter-content'] span"),
         AIRLINES_FILTER_SELECT_ALL("[data-testid='resultPage-AIRLINESFilter-content'] span + span"),
         AIRLINES_FILTER_CHECKBOXES("[data-testid='resultPage-AIRLINESFilter-content'] input"),
@@ -54,14 +55,16 @@ public class FiltersPO extends BaseCommands {
     private final By nonStopFlightsFilterButtonLocator = By.cssSelector(Locators.NUMBER_OF_STOPS_FILTER.get("direct"));
     private final By maxOneStopFilterButtonLocator = By.cssSelector(Locators.NUMBER_OF_STOPS_FILTER.get("max1"));
     private final By allFlightsFilterButtonLocator = By.cssSelector(Locators.NUMBER_OF_STOPS_FILTER.get("all"));
+    private final By resetStopFlightsFilterLocator = By.cssSelector(Locators.GENERIC_RESET_FILTER_BUTTON.get("MAX_STOPS"));
     // price filter
     private final By priceFilterLeftHandleLocator = By.cssSelector(Locators.GENERIC_SLIDER_FILTER_HANDLE.get("PRICEFilter", "0"));
     private final By priceFilterRightHandleLocator = By.cssSelector(Locators.GENERIC_SLIDER_FILTER_HANDLE.get("PRICEFilter", "1"));
     private final By priceFilterLowestPriceLocator = By.cssSelector(Locators.GENERIC_SLIDER_FILTER_LOWEST_VALUE.get("PRICEFilter"));
     private final By priceFilterHighestPriceLocator = By.cssSelector(Locators.GENERIC_SLIDER_FILTER_HIGHEST_VALUE.get("PRICEFilter"));
-    private final By priceFilterClearButtonLocator = By.cssSelector(Locators.GENERIC_SLIDER_CLEAR_FILTER_BUTTON.get("PRICE"));
+    private final By priceFilterResetButtonLocator = By.cssSelector(Locators.GENERIC_RESET_FILTER_BUTTON.get("PRICE"));
     // airlines filter
     private final By clearAllAirlinesButtonLocator = By.cssSelector(Locators.AIRLINES_FILTER_CLEAR_ALL.get());
+    private final By resetAirlinesFilterLocator = By.cssSelector(Locators.GENERIC_RESET_FILTER_BUTTON.get("AIRLINES"));
     private final By selectAllAirlinesButtonLocator = By.cssSelector(Locators.AIRLINES_FILTER_SELECT_ALL.get());
     private final By airLineFilterCheckboxesLocator = By.cssSelector(Locators.AIRLINES_FILTER_CHECKBOXES.get());
     private final By airLineFilterLabelsLocator = By.cssSelector(Locators.AIRLINES_FILTER_LABELS.get());
@@ -91,14 +94,14 @@ public class FiltersPO extends BaseCommands {
         return By.cssSelector(Locators.GENERIC_SLIDER_FILTER_HIGHEST_VALUE.get("departureArrival" + flightIndex + "Filter"));
     }
 
-    private final By departureArrivalSliderClearLocator(int flightIndex) {
-        return By.cssSelector(Locators.GENERIC_SLIDER_CLEAR_FILTER_BUTTON.get("departureArrival" + flightIndex));
+    private final By departureArrivalSliderResetLocator(int flightIndex) {
+        return By.cssSelector(Locators.GENERIC_RESET_FILTER_BUTTON.get("departureArrival" + flightIndex));
     }
 
     // travel time filter
     private final By travelTimeSliderHandleLocator = By.cssSelector(Locators.GENERIC_SLIDER_FILTER_HANDLE.get("TRAVEL_TIMEFilter", "0"));
     private final By travelTimeSliderValueLocator = By.cssSelector(Locators.GENERIC_SLIDER_FILTER_LOWEST_VALUE.get("TRAVEL_TIMEFilter"));
-    private final By travelTimeFilterClearButtonLocator = By.cssSelector(Locators.GENERIC_SLIDER_CLEAR_FILTER_BUTTON.get("TRAVEL_TIME"));
+    private final By travelTimeFilterResetButtonLocator = By.cssSelector(Locators.GENERIC_RESET_FILTER_BUTTON.get("TRAVEL_TIME"));
 
     // clear - select
     private final By clearAllFiltersButtonLocator = By.cssSelector(Locators.CLEAR_APPLY_FILTERS_BUTTON.get("reset"));
@@ -122,6 +125,15 @@ public class FiltersPO extends BaseCommands {
     }
 
     /**
+     * Checks if the nonstop flights filter button is selected
+     *
+     * @return - true if it is selected, false otherwise
+     */
+    public boolean isNonStopFlightsSelected() {
+        return waitUntilElementIsClickable(nonStopFlightsFilterButtonLocator).isSelected();
+    }
+
+    /**
      * Clicks the max one stop flights filter button
      *
      * @return - this
@@ -132,6 +144,25 @@ public class FiltersPO extends BaseCommands {
     }
 
     /**
+     * Resets the flight stops filter
+     *
+     * @return - this
+     */
+    public FiltersPO resetFlightStopsFilter() {
+        waitUntilElementIsClickable(resetStopFlightsFilterLocator).click();
+        return this;
+    }
+
+    /**
+     * Checks if the max one stop flights filter button is selected
+     *
+     * @return - true if it is selected, false otherwise
+     */
+    public boolean isMaxOneStopFlightsSelected() {
+        return waitUntilElementIsClickable(maxOneStopFilterButtonLocator).isSelected();
+    }
+
+    /**
      * Clicks the all flights filter button
      *
      * @return - this
@@ -139,6 +170,30 @@ public class FiltersPO extends BaseCommands {
     public FiltersPO clickAllFlightsFilter() {
         waitUntilElementIsClickable(allFlightsFilterButtonLocator).click();
         return this;
+    }
+
+    /**
+     * Checks if the all flights filter button is selected
+     *
+     * @return - true if it is selected, false otherwise
+     */
+    public boolean isMaxAllFlightsSelected() {
+        return waitUntilElementIsClickable(allFlightsFilterButtonLocator).isSelected();
+    }
+
+    /**
+     * Returns the maximum flight stops, according to which stops filter is selected
+     *
+     * @return - the maximum flight stops
+     */
+    public int getFlightStopsMax() {
+        int max = Integer.MAX_VALUE;
+        if (isNonStopFlightsSelected()) {
+            max = 0;
+        } else if (isMaxOneStopFlightsSelected()) {
+            max = 1;
+        }
+        return max;
     }
 
     /**
@@ -182,12 +237,12 @@ public class FiltersPO extends BaseCommands {
     }
 
     /**
-     * Clears the price slider filter
+     * Resets the price slider filter
      *
      * @return - this
      */
-    public FiltersPO clearSliderPrice() {
-        waitUntilElementIsClickable(priceFilterClearButtonLocator).click();
+    public FiltersPO resetSliderPrice() {
+        waitUntilElementIsClickable(priceFilterResetButtonLocator).click();
         return this;
     }
 
@@ -208,6 +263,16 @@ public class FiltersPO extends BaseCommands {
      */
     public FiltersPO clickSelectAllAirlinesButton() {
         waitUntilElementIsClickable(selectAllAirlinesButtonLocator).click();
+        return this;
+    }
+
+    /**
+     * Clicks the reset airlines filter button
+     *
+     * @return - this
+     */
+    public FiltersPO resetAirlinesFilterButton() {
+        waitUntilElementIsClickable(resetAirlinesFilterLocator).click();
         return this;
     }
 
@@ -254,7 +319,7 @@ public class FiltersPO extends BaseCommands {
      * @param index - the index of the checkbox
      * @return - this
      */
-    public FiltersPO clickCheckBoxWithIndex(int index) {
+    public FiltersPO clickAirlineCheckBoxWithIndex(int index) {
         getAllAirlineCheckboxes().get(index).click();
         return this;
     }
@@ -273,7 +338,18 @@ public class FiltersPO extends BaseCommands {
     }
 
     /**
-     * Clicks a departure radio button based on its index
+     * Checks whether a departure radio button is checked
+     *
+     * @param index - the index of the button
+     * @return - true if it is checked, false otherwise
+     */
+    public boolean isDepartureRadioButtonChecked(int index) {
+        waitUntilElementsArePresent(departureFilterRadioButtonLocator(index));
+        return isElementCheckedJs(departureFilterRadioButtonLocator(index));
+    }
+
+    /**
+     * Clicks an arrival radio button based on its index
      *
      * @param index - The index of the button
      * @return - this
@@ -282,6 +358,17 @@ public class FiltersPO extends BaseCommands {
         waitUntilElementIsPresent(arrivalFilterRadioButtonLocator(index));
         clickElementWithJs(arrivalFilterRadioButtonLocator(index));
         return this;
+    }
+
+    /**
+     * Checks whether a arrival radio button is checked
+     *
+     * @param index - the index of the button
+     * @return - true if it is checked, false otherwise
+     */
+    public boolean isArrivalRadioButtonChecked(int index) {
+        waitUntilElementsArePresent(arrivalFilterRadioButtonLocator(index));
+        return isElementCheckedJs(arrivalFilterRadioButtonLocator(index));
     }
 
     /**
@@ -329,13 +416,49 @@ public class FiltersPO extends BaseCommands {
     }
 
     /**
-     * Clears a departure/arrival slider filter
+     * Returns the minimum time of a departure / arrival filter according to a condition.
+     * The condition should provide information about whether the departure or arrival radio button is checked.
+     *
+     * @param condition   - Whether the departure or arrival radio button is checked
+     * @param flightIndex - The index of the departure / arrival filter
+     * @return - the minimum time of the filter
+     */
+    public LocalTime getDepartureArrivalTimeMin(boolean condition, int flightIndex) {
+        LocalTime departureArrivalTimeMin;
+        if (condition) {
+            departureArrivalTimeMin = getSliderDepartureArrivalLowestValue(flightIndex);
+        } else {
+            departureArrivalTimeMin = LocalTime.parse("00:00", DateTimeFormatter.ofPattern("HH:mm"));
+        }
+        return departureArrivalTimeMin;
+    }
+
+    /**
+     * Returns the maximum time of a departure / arrival filter according to a condition.
+     * The condition should provide information about whether the departure or arrival radio button is checked.
+     *
+     * @param condition   - Whether the departure or arrival radio button is checked
+     * @param flightIndex - The index of the departure / arrival filter
+     * @return - the maximum time of the filter
+     */
+    public LocalTime getDepartureArrivalTimeMax(boolean condition, int flightIndex) {
+        LocalTime departureArrivalTimeMin;
+        if (condition) {
+            departureArrivalTimeMin = getSliderDepartureArrivalHighestValue(flightIndex);
+        } else {
+            departureArrivalTimeMin = LocalTime.parse("23:59", DateTimeFormatter.ofPattern("HH:mm"));
+        }
+        return departureArrivalTimeMin;
+    }
+
+    /**
+     * Resets a departure/arrival slider filter
      *
      * @param index - the index of the slider
      * @return - this
      */
-    public FiltersPO clearSliderDepartureArrival(int index) {
-        waitUntilElementIsClickable(departureArrivalSliderClearLocator(index)).click();
+    public FiltersPO resetSliderDepartureArrival(int index) {
+        waitUntilElementIsClickable(departureArrivalSliderResetLocator(index)).click();
         return this;
     }
 
@@ -360,12 +483,12 @@ public class FiltersPO extends BaseCommands {
     }
 
     /**
-     * Clears the travel time slider filter
+     * Resets the travel time slider filter
      *
      * @return - this
      */
-    public FiltersPO clearSliderTravelTime() {
-        waitUntilElementIsClickable(travelTimeFilterClearButtonLocator).click();
+    public FiltersPO resetSliderTravelTime() {
+        waitUntilElementIsClickable(travelTimeFilterResetButtonLocator).click();
         return this;
     }
 

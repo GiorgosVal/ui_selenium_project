@@ -7,10 +7,10 @@ import java.util.List;
 
 @Builder
 @Data
-public class Trip {
+public class ExpectedTrip {
 
     // for actual and expected results
-    private List<Flight> expectedFlightList;
+    private List<ExpectedFlight> expectedFlightList;
 
     // for actual results
     private Float priceMin;

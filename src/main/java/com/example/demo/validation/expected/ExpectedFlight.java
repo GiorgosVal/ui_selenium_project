@@ -9,7 +9,7 @@ import java.util.List;
 
 @Builder
 @Data
-public class Flight {
+public class ExpectedFlight {
 
     private List<String> airlineNames;
     private LocalTime departureTimeMin;

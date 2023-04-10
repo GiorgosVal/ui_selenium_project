@@ -87,6 +87,12 @@ public class BaseCommands {
         return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
     }
 
+    protected boolean elementNotExistsNoWait(By locator) {
+        //waitUntilDocumentIsReady();
+        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(0));
+        return wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    }
+
     /**
      * Checks if an element exists inside a web element, without waiting for timeout
      *
@@ -156,6 +162,17 @@ public class BaseCommands {
             js = "document.evaluate(\"" + ((By.ByXPath) locator).getRemoteParameters().value() + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click();";
         }
         ((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(js);
+    }
+
+    //TODO move the selectors js part in separate reusable method
+    protected boolean isElementCheckedJs(By locator) {
+        String js = "";
+        if (locator.getClass().equals(By.ByCssSelector.class)) {
+            js = "return document.querySelector(\"" + ((By.ByCssSelector) locator).getRemoteParameters().value() + "\").checked;";
+        } else if (locator.getClass().equals(By.ByXPath.class)) {
+            js = "return document.evaluate(\"" + ((By.ByXPath) locator).getRemoteParameters().value() + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.checked;";
+        }
+        return (Boolean) (((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(js));
     }
 
     protected void slideElement(By locator, int x, int y) {

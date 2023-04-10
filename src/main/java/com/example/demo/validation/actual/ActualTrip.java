@@ -7,9 +7,9 @@ import java.util.List;
 
 @Builder
 @Data
-public class Trip {
+public class ActualTrip {
 
     private Float standardPrice;
     private Float flexiblePrice;
-    private List<Flight> actualFlightList;
+    private List<ActualFlight> actualFlightList;
 }

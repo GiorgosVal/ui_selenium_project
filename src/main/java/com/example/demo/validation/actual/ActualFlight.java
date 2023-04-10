@@ -8,7 +8,7 @@ import java.time.LocalTime;
 
 @Builder
 @Data
-public class Flight {
+public class ActualFlight {
 
     private String airlineName;
     private LocalTime departureTime;
