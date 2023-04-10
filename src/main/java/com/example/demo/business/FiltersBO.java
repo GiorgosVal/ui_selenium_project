@@ -2,6 +2,7 @@ package com.example.demo.business;
 
 import com.example.demo.dto.FlightDetails;
 import com.example.demo.pages.FiltersPO;
+import com.example.demo.pages.FlightResultsPO;
 import com.example.demo.validation.expected.ExpectedFlight;
 import com.example.demo.validation.expected.ExpectedTrip;
 
@@ -12,10 +13,12 @@ import java.util.stream.IntStream;
 
 public class FiltersBO extends BaseBO {
 
-    private FiltersPO filtersPO;
+    private final FiltersPO filtersPO;
+    private final FlightResultsPO flightResultsPO;
 
     public FiltersBO() {
         filtersPO = new FiltersPO();
+        flightResultsPO = new FlightResultsPO();
     }
 
     public enum FlightStops {
@@ -70,7 +73,7 @@ public class FiltersBO extends BaseBO {
      */
     public FiltersBO selectAirlinesUpToRange(int index) {
         filtersPO.clickClearAllAirlinesButton();
-        IntStream.range(0, index + 1).forEach(checkBoxIndex -> filtersPO.clickAirlineCheckBoxWithIndex(checkBoxIndex));
+        IntStream.range(0, index + 1).forEach(filtersPO::clickAirlineCheckBoxWithIndex);
         return this;
     }
 
@@ -128,6 +131,7 @@ public class FiltersBO extends BaseBO {
      */
     public FiltersBO applyFilters() {
         filtersPO.clickApplyFiltersButton();
+        flightResultsPO.waitFiltersToClose();
         return this;
     }
 
@@ -195,17 +199,16 @@ public class FiltersBO extends BaseBO {
         int flightStopsMax = filtersPO.getFlightStopsMax();
         List<String> airlineNames = filtersPO.getAllAvailableAirlines();
         Duration maxDuration = filtersPO.getSliderTravelTimeValue();
-        IntStream.range(0, flightDetails.getSimpleFlights().size()).forEach(flightIndex -> {
-            expectedFlightList.add(ExpectedFlight.builder()
-                    .flightStopsMax(flightStopsMax)
-                    .airlineNames(airlineNames)
-                    .departureTimeMin(filtersPO.getDepartureArrivalTimeMin(filtersPO.isDepartureRadioButtonChecked(flightIndex), flightIndex))
-                    .departureTimeMax(filtersPO.getDepartureArrivalTimeMax(filtersPO.isDepartureRadioButtonChecked(flightIndex), flightIndex))
-                    .arrivalTimeMin(filtersPO.getDepartureArrivalTimeMin(filtersPO.isArrivalRadioButtonChecked(flightIndex), flightIndex))
-                    .arrivalTimeMax(filtersPO.getDepartureArrivalTimeMax(filtersPO.isArrivalRadioButtonChecked(flightIndex), flightIndex))
-                    .durationMax(maxDuration)
-                    .build());
-        });
+        IntStream.range(0, flightDetails.getSimpleFlights().size()).forEach(flightIndex ->
+                expectedFlightList.add(ExpectedFlight.builder()
+                        .flightStopsMax(flightStopsMax)
+                        .airlineNames(airlineNames)
+                        .departureTimeMin(filtersPO.getDepartureArrivalTimeMin(filtersPO.isDepartureRadioButtonChecked(flightIndex), flightIndex))
+                        .departureTimeMax(filtersPO.getDepartureArrivalTimeMax(filtersPO.isDepartureRadioButtonChecked(flightIndex), flightIndex))
+                        .arrivalTimeMin(filtersPO.getDepartureArrivalTimeMin(filtersPO.isArrivalRadioButtonChecked(flightIndex), flightIndex))
+                        .arrivalTimeMax(filtersPO.getDepartureArrivalTimeMax(filtersPO.isArrivalRadioButtonChecked(flightIndex), flightIndex))
+                        .durationMax(maxDuration)
+                        .build()));
         return expectedFlightList;
     }
 

@@ -9,6 +9,9 @@ import lombok.Data;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * DTO object that holds the details for a flight
+ */
 @Data
 @Builder
 public class FlightDetails {

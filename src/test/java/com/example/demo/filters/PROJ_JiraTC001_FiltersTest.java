@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import java.util.ArrayList;
 import java.util.List;
 
-public class FiltersTest extends BaseTest {
+public class PROJ_JiraTC001_FiltersTest extends BaseTest {
 
     FlightDetails flightDetails;
     ExpectedTrip initialExpectedTrip;
@@ -68,7 +68,7 @@ public class FiltersTest extends BaseTest {
         preconditionStep4();
         int actualFlightsCount = flightResultsBO.getFlightResultsCount();
         assertor.softAssertEquals(0, actualFlightsCount, assertor.failMessage("Flights count", 0, actualFlightsCount))
-                .softAssertTrue(flightResultsBO.areTripsEmpty(), assertor.failListEmpty("Flights list", flightResultsBO.getActualTrips()))
+                .softAssertTrue(flightResultsBO.areTripsEmpty(), assertor.failMessage("Flights list", "list to be empty", "a non empty list"))
                 .softAssertAll();
     }
 

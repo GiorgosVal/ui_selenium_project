@@ -1,7 +1,6 @@
 package com.example.demo.pages;
 
 import com.example.demo.actions.BaseCommands;
-import com.example.demo.business.FiltersBO;
 import com.example.demo.utils.StringUtils;
 import com.example.demo.utils.TimeUtils;
 import org.openqa.selenium.By;
@@ -9,10 +8,11 @@ import org.openqa.selenium.WebElement;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.IntStream;
+
+import static com.example.demo.utils.TimeUtils.hoursMinutesToLocalTime;
 
 public class FiltersPO extends BaseCommands {
 
@@ -70,31 +70,31 @@ public class FiltersPO extends BaseCommands {
     private final By airLineFilterLabelsLocator = By.cssSelector(Locators.AIRLINES_FILTER_LABELS.get());
 
     //departure - arrival filters
-    private final By departureFilterRadioButtonLocator(int index) {
+    private By departureFilterRadioButtonLocator(int index) {
         return By.cssSelector(Locators.DEPARTURE_ARRIVAL_RADIO.get("departure", index));
     }
 
-    private final By arrivalFilterRadioButtonLocator(int index) {
+    private By arrivalFilterRadioButtonLocator(int index) {
         return By.cssSelector(Locators.DEPARTURE_ARRIVAL_RADIO.get("arrival", index));
     }
 
-    private final By departureArrivalSliderLeftHandleLocator(int flightIndex) {
+    private By departureArrivalSliderLeftHandleLocator(int flightIndex) {
         return By.cssSelector(Locators.GENERIC_SLIDER_FILTER_HANDLE.get("departureArrival" + flightIndex + "Filter", "0"));
     }
 
-    private final By departureArrivalSliderRightHandleLocator(int flightIndex) {
+    private By departureArrivalSliderRightHandleLocator(int flightIndex) {
         return By.cssSelector(Locators.GENERIC_SLIDER_FILTER_HANDLE.get("departureArrival" + flightIndex + "Filter", "1"));
     }
 
-    private final By departureArrivalSliderLowestValueLocator(int flightIndex) {
+    private By departureArrivalSliderLowestValueLocator(int flightIndex) {
         return By.cssSelector(Locators.GENERIC_SLIDER_FILTER_LOWEST_VALUE.get("departureArrival" + flightIndex + "Filter"));
     }
 
-    private final By departureArrivalSliderHighestValueLocator(int flightIndex) {
+    private By departureArrivalSliderHighestValueLocator(int flightIndex) {
         return By.cssSelector(Locators.GENERIC_SLIDER_FILTER_HIGHEST_VALUE.get("departureArrival" + flightIndex + "Filter"));
     }
 
-    private final By departureArrivalSliderResetLocator(int flightIndex) {
+    private By departureArrivalSliderResetLocator(int flightIndex) {
         return By.cssSelector(Locators.GENERIC_RESET_FILTER_BUTTON.get("departureArrival" + flightIndex));
     }
 
@@ -402,7 +402,7 @@ public class FiltersPO extends BaseCommands {
      * @return - the value in {@link LocalTime}
      */
     public LocalTime getSliderDepartureArrivalLowestValue(int index) {
-        return LocalTime.parse(waitUntilElementIsVisible(departureArrivalSliderLowestValueLocator(index)).getText(), DateTimeFormatter.ofPattern("HH:mm"));
+        return hoursMinutesToLocalTime(waitUntilElementIsVisible(departureArrivalSliderLowestValueLocator(index)).getText());
     }
 
     /**
@@ -412,7 +412,7 @@ public class FiltersPO extends BaseCommands {
      * @return - the value in {@link LocalTime}
      */
     public LocalTime getSliderDepartureArrivalHighestValue(int index) {
-        return LocalTime.parse(waitUntilElementIsVisible(departureArrivalSliderHighestValueLocator(index)).getText(), DateTimeFormatter.ofPattern("HH:mm"));
+        return hoursMinutesToLocalTime(waitUntilElementIsVisible(departureArrivalSliderHighestValueLocator(index)).getText());
     }
 
     /**
@@ -428,7 +428,7 @@ public class FiltersPO extends BaseCommands {
         if (condition) {
             departureArrivalTimeMin = getSliderDepartureArrivalLowestValue(flightIndex);
         } else {
-            departureArrivalTimeMin = LocalTime.parse("00:00", DateTimeFormatter.ofPattern("HH:mm"));
+            departureArrivalTimeMin = hoursMinutesToLocalTime("00:00");
         }
         return departureArrivalTimeMin;
     }
@@ -446,7 +446,7 @@ public class FiltersPO extends BaseCommands {
         if (condition) {
             departureArrivalTimeMin = getSliderDepartureArrivalHighestValue(flightIndex);
         } else {
-            departureArrivalTimeMin = LocalTime.parse("23:59", DateTimeFormatter.ofPattern("HH:mm"));
+            departureArrivalTimeMin = hoursMinutesToLocalTime("23:59");
         }
         return departureArrivalTimeMin;
     }

@@ -1,7 +1,6 @@
 package com.example.demo.actions;
 
 import com.example.demo.factories.WebDriverFactory;
-import lombok.extern.slf4j.Slf4j;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.StaleElementReferenceException;
@@ -13,84 +12,150 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
 import java.util.List;
 
-@Slf4j
 public class BaseCommands {
 
-    int timeoutSeconds = 20;    //TODO maybe this can be dynamically passed in BaseTest setup
-    int retryMaxAttempts = 2;
+    int timeoutSeconds = 20;
+    int retryMaxAttempts = 3;
 
-    protected WebElement waitUntilElementIsVisible(By locator) {
-        //waitUntilDocumentIsReady();
-        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
-        wait.until(ExpectedConditions.visibilityOfElementLocated(locator));
-        return WebDriverFactory.getDriver().findElement(locator);
+    /**
+     * Returns a new {@link WebDriverWait} with the default {@link #timeoutSeconds} duration
+     *
+     * @return - a new {@link WebDriverWait}
+     */
+    private WebDriverWait driverWait() {
+        return driverWait(timeoutSeconds);
     }
 
-    protected void waitUntilElementIsInvisible(By locator) {
-        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
-        wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    /**
+     * Returns a new {@link WebDriverWait} with the timeout duration given
+     *
+     * @param timeoutSeconds - the duration of timeout in seconds
+     * @return - a new {@link WebDriverWait}
+     */
+    private WebDriverWait driverWait(int timeoutSeconds) {
+        return new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
     }
 
-    protected List<WebElement> waitUntilElementsAreVisible(By locator) {
-        //waitUntilDocumentIsReady();
-        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
-        wait.until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
-        return WebDriverFactory.getDriver().findElements(locator);
+    /**
+     * Returns the javascript script part to select an element based on the locator instance
+     * {@link org.openqa.selenium.By.ByCssSelector} or {@link org.openqa.selenium.By.ByXPath}
+     *
+     * @param locator - the locator of the element
+     * @return - the javascript to select the element
+     */
+    private String jsSelector(By locator) {
+        String js = "";
+        if (locator.getClass().equals(By.ByCssSelector.class)) {
+            js = "document.querySelector(\"" + ((By.ByCssSelector) locator).getRemoteParameters().value() + "\")";
+        } else if (locator.getClass().equals(By.ByXPath.class)) {
+            js = "document.evaluate(\"" + ((By.ByXPath) locator).getRemoteParameters().value() + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue";
+        }
+        return js;
     }
 
-    protected WebElement waitUntilElementIsPresent(By locator) {
-        //waitUntilDocumentIsReady();
-        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
-        return WebDriverFactory.getDriver().findElement(locator);
+    /*
+     * ------------------------------------------------------------------------------------------------------
+     * ----------------------------------------- WAIT COMMANDS ----------------------------------------------
+     * ------------------------------------------------------------------------------------------------------
+     */
+
+    /**
+     * Wait for an element to be visible
+     *
+     * @param locator - the locator of the element
+     * @return - the element
+     */
+    public WebElement waitUntilElementIsVisible(By locator) {
+        return driverWait().until(ExpectedConditions.visibilityOfElementLocated(locator));
     }
 
-    protected List<WebElement> waitUntilElementsArePresent(By locator) {
-        //waitUntilDocumentIsReady();
-        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
-        wait.until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
-        return WebDriverFactory.getDriver().findElements(locator);
+    /**
+     * Wait for all elements to be invisible
+     *
+     * @param locator - the locator of the elements
+     * @return the elements
+     */
+    public List<WebElement> waitUntilElementsAreVisible(By locator) {
+        return driverWait().until(ExpectedConditions.visibilityOfAllElementsLocatedBy(locator));
     }
 
-    protected List<WebElement> waitUntilElementsAreVisibleWithRetry(By locator) {
+    /**
+     * Wait for all elements to be invisible
+     *
+     * @param locator - the locator of the elements
+     * @return the elements
+     */
+    public List<WebElement> waitUntilElementsAreVisibleWithRetry(By locator) {
         int attempts = 0;
         while (attempts < retryMaxAttempts) {
             try {
                 return waitUntilElementsAreVisible(locator);
             } catch (StaleElementReferenceException e) {
-                System.out.println("StaleElementReferenceException!!!! retying...");    //TODO log
             }
             attempts++;
         }
         return null;
     }
 
-    protected WebElement waitUntilElementIsClickable(By locator) {
+    /**
+     * Wait for an element to be invisible
+     *
+     * @param locator - the locator of the element
+     * @return true if the element is invisible, false otherwise
+     */
+    public boolean waitUntilElementIsInvisible(By locator) {
+        return driverWait().until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    }
+
+    /**
+     * Wait for an element to be present
+     *
+     * @param locator - the locator of the element
+     * @return - the element
+     */
+    public WebElement waitUntilElementIsPresent(By locator) {
+        return driverWait().until(ExpectedConditions.presenceOfElementLocated(locator));
+    }
+
+    /**
+     * Wait for all elements to be present
+     *
+     * @param locator - the locator of the elements
+     * @return - the elements
+     */
+    public List<WebElement> waitUntilElementsArePresent(By locator) {
+        return driverWait().until(ExpectedConditions.presenceOfAllElementsLocatedBy(locator));
+    }
+
+    /**
+     * Wait for an element to be clickable
+     *
+     * @param locator - the locator of the element
+     * @return - the element
+     */
+    public WebElement waitUntilElementIsClickable(By locator) {
         waitUntilElementIsVisible(locator);
         scrollToElement(locator);
-        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
-        wait.until(ExpectedConditions.elementToBeClickable(locator));
-        return WebDriverFactory.getDriver().findElement(locator);   //TODO return the element found by wait
+        return driverWait().until(ExpectedConditions.elementToBeClickable(locator));
     }
 
-    protected List<WebElement> waitUntilElementsAreClickable(By locator) {
-        List<WebElement> webElements = waitUntilElementsAreVisible(locator);
-        scrollToElement(locator);
-        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(timeoutSeconds));
-        webElements.forEach(webElement -> waitUntilElementIsClickable(locator));
-        return webElements;
-    }
-
-    protected boolean elementExistsNoWait(By locator) {
-        //waitUntilDocumentIsReady();
-        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(0));
-        return wait.until(ExpectedConditions.visibilityOfElementLocated(locator)).isDisplayed();
-    }
-
-    protected boolean elementNotExistsNoWait(By locator) {
-        //waitUntilDocumentIsReady();
-        WebDriverWait wait = new WebDriverWait(WebDriverFactory.getDriver(), Duration.ofSeconds(0));
-        return wait.until(ExpectedConditions.invisibilityOfElementLocated(locator));
+    /**
+     * Waits until the document is ready
+     */
+    public void waitUntilDocumentIsReady() {
+        int waited = 0;
+        int secondsToWaitEach = 5;
+        String js = "return document.readyState";
+        synchronized (WebDriverFactory.getDriver()) {
+            while (!executeJavaScript(js).toString().equalsIgnoreCase("complete") && waited < timeoutSeconds) {
+                try {
+                    WebDriverFactory.getDriver().wait(secondsToWaitEach * 1000L);
+                    waited = waited + secondsToWaitEach;
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
     }
 
     /**
@@ -100,19 +165,52 @@ public class BaseCommands {
      * @param locator    - The locator for the element to check
      * @return - true if the element exists, false otherwise
      */
-    protected boolean elementExistsNoWait(WebElement webElement, By locator) {
-        //waitUntilDocumentIsReady();
+    public boolean elementNotExistsNoWait(WebElement webElement, By locator) {
         Duration oldTimeout = WebDriverFactory.getDriver().manage().timeouts().getImplicitWaitTimeout();
         WebDriverFactory.getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
         boolean isDisplayed = false;
         try {
             isDisplayed = webElement.findElement(locator).isDisplayed();
         } catch (Exception e) {
-            System.out.println(">>>>>");//TODO
         } finally {
             WebDriverFactory.getDriver().manage().timeouts().implicitlyWait(oldTimeout);
         }
         return isDisplayed;
+    }
+
+    /**
+     * Checks if an element exists, without waiting for timeout
+     *
+     * @param locator - The locator of the element
+     * @return - true if the element exists, false otherwise
+     */
+    public boolean elementNotExistsNoWait(By locator) {
+        Duration oldTimeout = WebDriverFactory.getDriver().manage().timeouts().getImplicitWaitTimeout();
+        WebDriverFactory.getDriver().manage().timeouts().implicitlyWait(Duration.ofSeconds(0));
+        boolean isDisplayed = false;
+        try {
+            isDisplayed = WebDriverFactory.getDriver().findElement(locator).isDisplayed();
+        } catch (Exception e) {
+        } finally {
+            WebDriverFactory.getDriver().manage().timeouts().implicitlyWait(oldTimeout);
+        }
+        return isDisplayed;
+    }
+
+    /*
+     * ------------------------------------------------------------------------------------------------------
+     * ----------------------------------------- ACTION COMMANDS --------------------------------------------
+     * ------------------------------------------------------------------------------------------------------
+     */
+
+    /**
+     * Executes the javascript script given
+     *
+     * @param script - the javascript to execute
+     * @return - the outcome of the javascript
+     */
+    public Object executeJavaScript(String script) {
+        return ((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(script);
     }
 
     /**
@@ -122,60 +220,37 @@ public class BaseCommands {
      *
      * @param locator - the locator to use to scroll to an element
      */
-    protected void scrollToElement(By locator) {
-        String js = "";
-        if (locator.getClass().equals(By.ByCssSelector.class)) {
-            js = "document.querySelector(\"" + ((By.ByCssSelector) locator).getRemoteParameters().value() + "\").scrollIntoView({behavior: \"auto\", block: \"center\", inline: \"center\"});";
-        } else if (locator.getClass().equals(By.ByXPath.class)) {
-            js = "document.evaluate(\"" + ((By.ByXPath) locator).getRemoteParameters().value() + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.scrollIntoView({behavior: \"auto\", block: \"center\", inline: \"center\"});";
-        }
-        ((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(js);
+    public void scrollToElement(By locator) {
+        executeJavaScript(jsSelector(locator) + ".scrollIntoView({behavior: \"auto\", block: \"center\", inline: \"center\"});");
     }
 
-    protected void waitUntilDocumentIsReady() {
-        int waited = 0;
-        int secondsToWaitEach = 5;
-        String js = "return document.readyState";
-        System.out.println("before synchronized");
-        log.info("Wait until document is ready.");
-        synchronized (WebDriverFactory.getDriver()) {
-            System.out.println("inside synchronized");
-            while (!((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(js).toString().equalsIgnoreCase("complete") && waited < timeoutSeconds) {
-                System.out.println("in while");
-                try {
-                    WebDriverFactory.getDriver().wait(secondsToWaitEach * 1000L);
-                    waited = waited + secondsToWaitEach;
-                    System.out.println("Waited " + waited + " for document to be ready");
-                    log.info("Waited {} for document to be ready", waited);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+    /**
+     * Clicks an element using javascript
+     *
+     * @param locator - the locator of the element
+     */
+    public void clickElementWithJs(By locator) {
+        executeJavaScript(jsSelector(locator) + ".click();");
     }
 
-    protected void clickElementWithJs(By locator) {
-        String js = "";
-        if (locator.getClass().equals(By.ByCssSelector.class)) {
-            js = "document.querySelector(\"" + ((By.ByCssSelector) locator).getRemoteParameters().value() + "\").click();";
-        } else if (locator.getClass().equals(By.ByXPath.class)) {
-            js = "document.evaluate(\"" + ((By.ByXPath) locator).getRemoteParameters().value() + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.click();";
-        }
-        ((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(js);
+    /**
+     * Checks if the checkbox element is checked
+     *
+     * @param locator - the locator of the element
+     * @return - true if the element is checked, false otherwise
+     */
+    public boolean isElementCheckedJs(By locator) {
+        return (Boolean) executeJavaScript("return " + jsSelector(locator) + ".checked;");
     }
 
-    //TODO move the selectors js part in separate reusable method
-    protected boolean isElementCheckedJs(By locator) {
-        String js = "";
-        if (locator.getClass().equals(By.ByCssSelector.class)) {
-            js = "return document.querySelector(\"" + ((By.ByCssSelector) locator).getRemoteParameters().value() + "\").checked;";
-        } else if (locator.getClass().equals(By.ByXPath.class)) {
-            js = "return document.evaluate(\"" + ((By.ByXPath) locator).getRemoteParameters().value() + "\", document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue.checked;";
-        }
-        return (Boolean) (((JavascriptExecutor) WebDriverFactory.getDriver()).executeScript(js));
-    }
-
-    protected void slideElement(By locator, int x, int y) {
+    /**
+     * Slides an element by x pixels horizontally, and y pixels vertically
+     *
+     * @param locator - the locator of the element
+     * @param x       - the pixels to slide horizontally (positive values for right, negative for left)
+     * @param y       - the pixels to slide vertically (positive values for up, negative for down)
+     */
+    public void slideElement(By locator, int x, int y) {
         WebElement sliderHandle = waitUntilElementIsClickable(locator);
         Actions actions = new Actions(WebDriverFactory.getDriver());
         actions.dragAndDropBy(sliderHandle, x, y).perform();

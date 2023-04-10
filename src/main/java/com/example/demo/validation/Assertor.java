@@ -40,22 +40,42 @@ public class Assertor {
         return this;
     }
 
+    /**
+     * Soft asserts an expected trip with a list of actual trips found
+     *
+     * @param expected    - The expected trip
+     * @param actualTrips - A list of actual trips
+     * @return - this
+     */
     public Assertor softAssertTrips(ExpectedTrip expected, List<ActualTrip> actualTrips) {
         actualTrips.forEach(actualTrip -> sofAssertTrip(expected, actualTrip));
         return this;
     }
 
+    /**
+     * Soft asserts an expected trip with the actual trip found
+     *
+     * @param expected - The expected trip
+     * @param actual   - The actual trip
+     * @return - this
+     */
     public Assertor sofAssertTrip(ExpectedTrip expected, ActualTrip actual) {
         softAssert.assertTrue(expected.getPriceMin() <= actual.getStandardPrice() && expected.getPriceMax() >= actual.getStandardPrice(),
                 failMessage("Standard price", expected.getPriceMin(), expected.getPriceMax(), actual.getStandardPrice()));
         softAssert.assertEquals(expected.getExpectedFlightList().size(), actual.getActualFlightList().size(),
                 failMessage("Flights list size", expected.getExpectedFlightList().size(), actual.getActualFlightList().size()));
-        IntStream.range(0, expected.getExpectedFlightList().size()).forEach(index -> {
-            softAssertFlight(expected.getExpectedFlightList().get(index), actual.getActualFlightList().get(index));
-        });
+        IntStream.range(0, expected.getExpectedFlightList().size()).forEach(
+                index -> softAssertFlight(expected.getExpectedFlightList().get(index), actual.getActualFlightList().get(index)));
         return this;
     }
 
+    /**
+     * Soft asserts an expected flight with the actual flight found
+     *
+     * @param expected - The expected flight
+     * @param actual   - The actual flight
+     * @return - this
+     */
     public Assertor softAssertFlight(ExpectedFlight expected, ActualFlight actual) {
         softAssert.assertTrue(expected.getAirlineNames().contains(actual.getAirlineName()),
                 failMessage("Airline names", expected.getAirlineNames(), actual.getAirlineName()));

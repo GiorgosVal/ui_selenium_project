@@ -5,6 +5,9 @@ import lombok.Data;
 
 import java.time.LocalDateTime;
 
+/**
+ * DTO object that holds the details for a simple flight
+ */
 @Data
 @Builder
 public class SimpleFlight {

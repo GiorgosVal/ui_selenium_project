@@ -16,10 +16,10 @@ public class BaseTest {
     public FlightResultsBO flightResultsBO;
     public FiltersBO filtersBO;
 
-    @Parameters({"url", "browser", "local", "timeout", "headless"})
+    @Parameters({"url", "browser", "timeout", "headless"})
     @BeforeClass
-    public void setup(String url, String browser, boolean local, long timeout, boolean headless) {
-        WebDriver webDriver = BrowserFactory.setup(browser, local, timeout, headless);
+    public void setup(String url, String browser, long timeout, boolean headless) {
+        WebDriver webDriver = BrowserFactory.setup(browser, timeout, headless);
         webDriver.get(url);
         WebDriverFactory.setDriver(webDriver);
 

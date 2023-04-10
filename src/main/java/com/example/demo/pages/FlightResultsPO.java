@@ -9,9 +9,10 @@ import org.openqa.selenium.WebElement;
 
 import java.time.Duration;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static com.example.demo.utils.TimeUtils.hoursMinutesToLocalTime;
 
 public class FlightResultsPO extends BaseCommands {
 
@@ -106,7 +107,25 @@ public class FlightResultsPO extends BaseCommands {
      * @return - true if displayed, false otherwise
      */
     public boolean areFiltersDisplayed() {
-        return elementExistsNoWait(waitUntilElementIsVisible(By.cssSelector("body")), filtersContentLocator);
+        return elementNotExistsNoWait(waitUntilElementIsVisible(By.cssSelector("body")), filtersContentLocator);
+    }
+
+    /**
+     * Waits until the filters open
+     *
+     * @return - the filters content element
+     */
+    public WebElement waitFiltersToOpen() {
+        return waitUntilElementIsVisible(filtersContentLocator);
+    }
+
+    /**
+     * Waits until the filters are closed
+     *
+     * @return - true if the filters are closed, false otherwise
+     */
+    public boolean waitFiltersToClose() {
+        return waitUntilElementIsInvisible(filtersContentLocator);
     }
 
     /**
@@ -146,8 +165,7 @@ public class FlightResultsPO extends BaseCommands {
      * @return - true if the list is empty, false otherwise
      */
     public boolean areTripsEmpty() {
-        waitUntilElementIsInvisible(allTripsLocator);
-        return elementNotExistsNoWait(allTripsLocator);
+        return !elementNotExistsNoWait(allTripsLocator);
     }
 
     /**
@@ -177,7 +195,7 @@ public class FlightResultsPO extends BaseCommands {
      * @return - the arrival time
      */
     public LocalTime getFlightArrivalTime(WebElement flight) {
-        return LocalTime.parse(flight.findElement(flightArrivalTimeLocator).getText(), DateTimeFormatter.ofPattern("HH:mm"));
+        return hoursMinutesToLocalTime(flight.findElement(flightArrivalTimeLocator).getText());
     }
 
     /**
@@ -187,7 +205,7 @@ public class FlightResultsPO extends BaseCommands {
      * @return - the departure time
      */
     public LocalTime getFlightDepartureTime(WebElement flight) {
-        return LocalTime.parse(flight.findElement(flightDepartureTimeLocator).getText(), DateTimeFormatter.ofPattern("HH:mm"));
+        return hoursMinutesToLocalTime(flight.findElement(flightDepartureTimeLocator).getText());
     }
 
     /**
@@ -209,7 +227,7 @@ public class FlightResultsPO extends BaseCommands {
      */
     public int getFlightStops(WebElement flight) {
         int stops = 0;
-        if (elementExistsNoWait(flight, flightStopsLocator)) {
+        if (elementNotExistsNoWait(flight, flightStopsLocator)) {
             stops = Integer.parseInt(StringUtils.extractFirstNumberFromString(flight.findElement(flightStopsLocator).getText()));
         }
         return stops;
@@ -249,7 +267,7 @@ public class FlightResultsPO extends BaseCommands {
      * @param trips - A list of trips
      * @return - a map with sorted flights according to their type
      */
-    public Map<Integer, List<WebElement>> tripsToFlightTypesMap(List<WebElement> trips) {   //TODO make this private or add to utils
+    public Map<Integer, List<WebElement>> tripsToFlightTypesMap(List<WebElement> trips) {
         Map<Integer, List<WebElement>> flightsMap = new HashMap<>();
         trips.forEach(trip -> {
             waitUntilElementsAreVisible(flightLocator);

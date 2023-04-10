@@ -72,15 +72,15 @@ public class HomePagePO extends BaseCommands {
     private final By nextMonthLocator = By.cssSelector(Locators.DATE_MONTH_PICKER.get("next"));
     private final By passengersDropDownLocator = By.cssSelector(Locators.PASSENGERS_DROPDOWN.get());
 
-    private final By passengersIncreaseSeatButtonLocator(PassengerType passengerType) {
+    private By passengersIncreaseSeatButtonLocator(PassengerType passengerType) {
         return By.cssSelector(Locators.PASSENGER_INCREASE_SEAT_BUTTON.get(passengerType.get()));
     }
 
-    private final By passengersDecreaseSeatButtonLocator(PassengerType passengerType) {
+    private By passengersDecreaseSeatButtonLocator(PassengerType passengerType) {
         return By.cssSelector(Locators.PASSENGER_DECREASE_SEAT_BUTTON.get(passengerType.get()));
     }
 
-    private final By passengersSeatsCounterLocator(PassengerType passengerType) {
+    private By passengersSeatsCounterLocator(PassengerType passengerType) {
         return By.cssSelector(Locators.PASSENGER_SEATS_COUNTER.get(passengerType.get()));
     }
 
@@ -139,11 +139,10 @@ public class HomePagePO extends BaseCommands {
      *
      * @return - this
      */
-    public HomePagePO clickAcceptCookies() {    //TODO make this optional
+    public HomePagePO clickAcceptCookies() {
         try {
             waitUntilElementIsClickable(acceptCookiesLocator).click();
         } catch (NoSuchElementException | TimeoutException e) {
-            //TODO
         }
         return this;
     }

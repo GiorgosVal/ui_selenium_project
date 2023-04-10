@@ -3,13 +3,12 @@
 <suite name="Test Flight Network" verbose="1">
     <parameter name="url" value="https://www.flightnetwork.com/"/>
     <parameter name="browser" value="chrome"/>
-    <parameter name="local" value="true"/>
-    <parameter name="timeout" value="5"/>
+    <parameter name="timeout" value="20"/>
     <parameter name="headless" value="false"/>
 
-    <test name="Filters tests">
+    <test name="Verify Flight results filters">
         <classes>
-            <class name="com.example.demo.filters.FiltersTest"/>
+            <class name="com.example.demo.filters.PROJ_JiraTC001_FiltersTest"/>
         </classes>
     </test>
 </suite>

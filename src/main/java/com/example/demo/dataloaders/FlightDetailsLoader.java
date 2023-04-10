@@ -11,43 +11,78 @@ import java.util.List;
 
 public class FlightDetailsLoader {
 
+    private FlightDetailsLoader() {
+    }
+
+    /**
+     * Loads a one way flight with predefined fields
+     *
+     * @return - the DTO holding the information for the flight
+     */
     public static FlightDetails loadOneWayFlight() {
-        return FlightDetails.builder()
-                .flightType(FlightType.ONE_WAY)
-                .simpleFlights(List.of(SimpleFlight.builder()
+        return loadOneWayFlight(SimpleFlight.builder()
+                .fromInput("Athens")
+                .fromAirport("Athens, Greece")
+                .toInput("Istanbul")
+                .toAirport("Istanbul (All airports), Turkey")
+                .departureDate(LocalDateTime.now().plusDays(40))
+                .build());
+    }
+
+    /**
+     * Loads a one way flight with predefined fields for return date, passengers, cabin class
+     *
+     * @return - the DTO holding the information for the flight
+     */
+    public static FlightDetails loadOneWayFlight(SimpleFlight simpleFlight) {
+        return loadFlight(FlightType.ONE_WAY, List.of(simpleFlight), LocalDateTime.now().plusDays(90), List.of(PassengerType.ADULTS, PassengerType.CHILDREN), CabinClass.FIRST);
+    }
+
+    /**
+     * Loads a multi city flight with predefined fields
+     *
+     * @return - the DTO holding the information for the flight
+     */
+    public static FlightDetails loadMultiCityFlight() {
+        return loadMultiCityFlight(List.of(
+                SimpleFlight.builder()
                         .fromInput("Athens")
                         .fromAirport("Athens, Greece")
                         .toInput("Istanbul")
                         .toAirport("Istanbul (All airports), Turkey")
                         .departureDate(LocalDateTime.now().plusDays(40))
-                        .build()))
-                .returnDate(LocalDateTime.now().plusDays(90))
-                .passengerTypeList(List.of(PassengerType.ADULTS, PassengerType.CHILDREN))
-                .cabinClass(CabinClass.FIRST)
-                .build();
+                        .build(),
+                SimpleFlight.builder()
+                        .fromInput("Berlin")
+                        .fromAirport("Berlin (All airports), Germany")
+                        .toInput("Amsterdam")
+                        .toAirport("Amsterdam, Netherlands")
+                        .departureDate(LocalDateTime.now().plusDays(50))
+                        .build()
+        ));
     }
 
-    public static FlightDetails loadMultiCityFlight() {
+    /**
+     * Loads a multi city flight with predefined fields for return date, passengers, cabin class
+     *
+     * @return - the DTO holding the information for the flight
+     */
+    public static FlightDetails loadMultiCityFlight(List<SimpleFlight> simpleFlights) {
+        return loadFlight(FlightType.MULTI_CITY, simpleFlights, null, List.of(PassengerType.ADULTS, PassengerType.CHILDREN), CabinClass.FIRST);
+    }
+
+    /**
+     * Loads a flight
+     *
+     * @return - the DTO holding the information for the flight
+     */
+    private static FlightDetails loadFlight(FlightType flightType, List<SimpleFlight> simpleFlights, LocalDateTime returnDate, List<PassengerType> passengerTypes, CabinClass cabinClass) {
         return FlightDetails.builder()
-                .flightType(FlightType.MULTI_CITY)
-                .simpleFlights(List.of(
-                        SimpleFlight.builder()
-                                .fromInput("Athens")
-                                .fromAirport("Athens, Greece")
-                                .toInput("Istanbul")
-                                .toAirport("Istanbul (All airports), Turkey")
-                                .departureDate(LocalDateTime.now().plusDays(40))
-                                .build(),
-                        SimpleFlight.builder()
-                                .fromInput("Berlin")
-                                .fromAirport("Berlin (All airports), Germany")
-                                .toInput("Amsterdam")
-                                .toAirport("Amsterdam, Netherlands")
-                                .departureDate(LocalDateTime.now().plusDays(50))
-                                .build()
-                ))
-                .passengerTypeList(List.of(PassengerType.ADULTS, PassengerType.CHILDREN))
-                .cabinClass(CabinClass.FIRST)
+                .flightType(flightType)
+                .simpleFlights(simpleFlights)
+                .returnDate(returnDate)
+                .passengerTypeList(passengerTypes)
+                .cabinClass(cabinClass)
                 .build();
     }
 }

@@ -1,6 +1,5 @@
 package com.example.demo.business;
 
-import com.example.demo.pages.FiltersPO;
 import com.example.demo.pages.FlightResultsPO;
 import com.example.demo.validation.actual.ActualFlight;
 import com.example.demo.validation.actual.ActualTrip;
@@ -11,12 +10,10 @@ import java.util.List;
 
 public class FlightResultsBO extends BaseBO {
 
-    FlightResultsPO flightResultsPO;
-    FiltersPO filtersPO;
+    private final FlightResultsPO flightResultsPO;
 
     public FlightResultsBO() {
         flightResultsPO = new FlightResultsPO();
-        filtersPO = new FiltersPO();
     }
 
     /**
@@ -49,23 +46,20 @@ public class FlightResultsBO extends BaseBO {
             trips.forEach(trip -> {
                 List<WebElement> flights = flightResultsPO.getTripFlights(trip);
                 List<ActualFlight> actualFlights = new ArrayList<>();
-                flights.forEach(flight -> {
-                    actualFlights.add(ActualFlight.builder()
-                            .airlineName(flightResultsPO.getFlightAirlineName(flight))
-                            .departureTime(flightResultsPO.getFlightDepartureTime(flight))
-                            .arrivalTime(flightResultsPO.getFlightArrivalTime(flight))
-                            .flightDuration(flightResultsPO.getFlightDurationTime(flight))
-                            .flightStops(flightResultsPO.getFlightStops(flight))
-                            .build());
-                });
+                flights.forEach(flight ->
+                        actualFlights.add(ActualFlight.builder()
+                                .airlineName(flightResultsPO.getFlightAirlineName(flight))
+                                .departureTime(flightResultsPO.getFlightDepartureTime(flight))
+                                .arrivalTime(flightResultsPO.getFlightArrivalTime(flight))
+                                .flightDuration(flightResultsPO.getFlightDurationTime(flight))
+                                .flightStops(flightResultsPO.getFlightStops(flight))
+                                .build()));
                 actualTrips.add(ActualTrip.builder()
                         .standardPrice(flightResultsPO.getTripStandardPrice(trip))
-                        //.flexiblePrice(flightResultsPO.getTripFlexiblePrice(trip))
                         .actualFlightList(actualFlights)
                         .build());
             });
         } catch (Exception e) {
-            System.out.println("No trips!");
         }
         return actualTrips;
     }
@@ -79,16 +73,28 @@ public class FlightResultsBO extends BaseBO {
         return flightResultsPO.areTripsEmpty();
     }
 
+    /**
+     * Opens the filters
+     *
+     * @return - this
+     */
     public FlightResultsBO openFilters() {
         if (!flightResultsPO.areFiltersDisplayed()) {
             flightResultsPO.clickFiltersToggle();
+            flightResultsPO.waitFiltersToOpen();
         }
         return this;
     }
 
+    /**
+     * Closes the filters
+     *
+     * @return this
+     */
     public FlightResultsBO closeFilters() {
         if (flightResultsPO.areFiltersDisplayed()) {
             flightResultsPO.clickFiltersToggle();
+            flightResultsPO.waitFiltersToClose();
         }
         return this;
     }

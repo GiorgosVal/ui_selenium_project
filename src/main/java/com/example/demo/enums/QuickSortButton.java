@@ -7,7 +7,7 @@ public enum QuickSortButton {
     CHEAPEST("Cheapest"),
     SHORTEST("Shortest");
 
-    private String button;
+    private final String button;
 
     QuickSortButton(String button) {
         this.button = button;
